@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/png" href="./favicon.png"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
+
+    <title>ASL Detector</title>
+
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(#FF5C38, #FF2A68);
+            font-family: 'Baloo Chettan 2', cursive;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .main {
+            height: 90vh;
+            /* width: 60vw; */
+            background: #FFFFFF;
+            border-radius: 5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        }
+
+        .video {
+            height: 50vh;
+            background: #30257F;
+            border-bottom: 15px solid #171558;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .text {
+            display: flex;
+            padding: 5px 20px;
+        }
+
+        .text > * > .title {
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        .text > .left {
+            width: 40%;
+        }
+
+        .text > .left > .content {
+            font-size: 25px;
+        }
+
+        .text > .right > .content {
+            font-size: 35px;
+        }
+
+        img {
+            height: 50vh;
+            margin: auto;
+            border-radius: 5px 5px 0 0;
+        }
+
+        @media only screen and (max-width: 500px) {
+            .text {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .video {
+                height: 30vh;
+            }
+
+            img {
+                width: 100vw;
+                max-height: 30vh;
+                border-radius: 0;
+            }
+
+            .main {
+                min-height: 100vh;
+                width: 100vw;
+                border-radius: 0;
+            }
+
+            .text > * > .title {
+                padding: 10px;
+                font-size: 20px;
+                opacity: 0.7;
+                padding: 0;
+                margin: 0;
+            }
+
+            .text > .left > .content {
+                font-size: 20px;
+            }
+
+            .text > .right > .content {
+                font-size: 25px;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <div class="video">
+                <img src="{{ url_for('video_feed') }}" >
+            </div>
+            <div class="text">
+                <div class="left">
+                    <p class="title">Suggestions:</p>
+                    <ol class="content">
+                        <li>apple</li>
+                        <li>apricot</li>
+                        <li>application</li>
+                        <li>approve</li>
+                        <li>apply</li>
+                    </ol>
+                </div>
+                <div class="right">
+                    <p class="title">Sentence:</p>
+                    <p class="content">
+                        I Would like to buy some apple...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
