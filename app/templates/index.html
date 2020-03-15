@@ -7,6 +7,8 @@
     <link rel="shortcut icon" type="image/png" href="./favicon.png"/>
 
     <link href="https://fonts.googleapis.com/css?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 
     <title>ASL Detector</title>
 
@@ -16,7 +18,7 @@
             width: 100vw;
             margin: 0;
             padding: 0;
-            background: linear-gradient(#FF5C38, #FF2A68);
+            background: linear-gradient(#1976D2, #03A9F4);
             font-family: 'Baloo Chettan 2', cursive;
         }
 
@@ -115,6 +117,35 @@
 
 </head>
 <body>
+    <script>
+        setInterval(function(){ 
+            axios.get('/suggestions')
+            .then(function (response) {
+                const myNode = document.getElementById("sugg-content");
+                myNode.textContent = '';
+                for (var i = 0; i < response.data.length; i++) {
+                    var item = document.createElement('li');
+                    item.appendChild(document.createTextNode(response.data[i]));
+                    document.getElementById('sugg-content').appendChild(item);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }, 1000);
+
+        setInterval(function(){ 
+            axios.get('/sentence')
+            .then(function (response) {
+                console.log(response.data)
+                document.getElementById("sugg-sentence").textContent = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }, 1000);
+    </script>
+
     <div class="container">
         <div class="main">
             <div class="video">
@@ -123,18 +154,14 @@
             <div class="text">
                 <div class="left">
                     <p class="title">Suggestions:</p>
-                    <ol class="content">
-                        <li>apple</li>
-                        <li>apricot</li>
-                        <li>application</li>
-                        <li>approve</li>
-                        <li>apply</li>
+                    <ol class="content" id="sugg-content">
+                        <!-- Dynamically fill top 5 suggested words -->
                     </ol>
                 </div>
                 <div class="right">
                     <p class="title">Sentence:</p>
-                    <p class="content">
-                        I Would like to buy some apple...
+                    <p class="content" id="sugg-sentence">
+                        <!-- Dynamically fill the completed sentence -->
                     </p>
                 </div>
             </div>

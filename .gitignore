@@ -5,3 +5,4 @@ preprocessed/
 app/.DS_Store
 asl-alphabet/
 asl_detector.ipynb
+.vscode

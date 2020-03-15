@@ -13,6 +13,10 @@ import datetime
 import imutils
 import time
 import cv2
+from flask import jsonify
+import autocomplete
+
+autocomplete.load()
 
 # initialize the output frame and a lock used to ensure thread-safe
 # exchanges of the output frames (useful for multiple browsers/tabs
@@ -25,7 +29,6 @@ app = Flask(__name__)
 
 # initialize the video stream and allow the camera sensor to
 # warmup
-#vs = VideoStream(usePiCamera=1).start()
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
 
@@ -108,12 +111,27 @@ def generate():
 		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + 
 			bytearray(encodedImage) + b'\r\n')
 
+
+def get_suggestion(prev_word='my', next_semi_word='na'):
+    suggestions = autocomplete.predict(prev_word, next_semi_word)[:5]
+    return [word[0] for word in suggestions]
+
 @app.route("/video_feed")
 def video_feed():
 	# return the response generated along with the specific media
 	# type (mime type)
 	return Response(generate(),
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
+
+@app.route('/suggestions')
+def suggestion():
+    suggestions = get_suggestion()
+    return jsonify(suggestions)
+
+@app.route('/sentence')
+def sentence():
+    sentence = 'I want to buy some apples...'
+    return jsonify(sentence)
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
