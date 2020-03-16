@@ -3,6 +3,7 @@ data/
 preprocessed/
 asl-alphabet/
 saved_model.pt
+__pycache__/
 
 .DS_Store
 app/.DS_Store
