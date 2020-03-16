@@ -146,8 +146,62 @@
         }, 1000);
 
         document.body.onkeyup = function(e){
-            if(e.keyCode == 32){
+            if(e.keyCode == 13){
                 axios.get('/trigger')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 32){
+                axios.get('/char?character=space')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 49){
+                axios.get('/char?character=1')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 50){
+                axios.get('/char?character=2')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 51){
+                axios.get('/char?character=3')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 52){
+                axios.get('/char?character=4')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+            else if(e.keyCode == 53){
+                axios.get('/char?character=5')
                 .then(function (response) {
                     console.log(response.data)
                 })
