@@ -1,7 +1,9 @@
 .ipynb_checkpoints/
 data/
 preprocessed/
+asl-alphabet/
+saved_model.pt
+
 .DS_Store
 app/.DS_Store
-asl-alphabet/
 .vscode
