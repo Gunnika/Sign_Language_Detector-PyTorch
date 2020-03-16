@@ -14,7 +14,7 @@ To run the web application:
 ```
 python app.py -i 0.0.0.0 -o 8080
 ```
-It will run your app on http://localhost:8888/
+It will run your app on http://localhost:8080/
 
 ## Screenshots
 ### H
