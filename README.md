@@ -39,7 +39,7 @@ pip install -r requirements.txt
 
 To run the web application:
 ```
-python app.py
+python app.py -i 0.0.0.0 -o 8080
 ```
 It will run your app on http://localhost:8888/
 
