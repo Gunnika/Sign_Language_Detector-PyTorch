@@ -28,4 +28,17 @@ Autocompletion and Word Suggestion simplify and accelerate the process of inform
 2. Inclusion of this community in normal schools.
 3. Tourist Guides can communicate better using sign language
 
-## Set Up
+## Set Up Instructions
+
+The `requirements.txt` file should list all Python libraries that your notebooks
+depend on, and they will be installed using:
+
+```
+pip install -r requirements.txt
+```
+
+To run the web application:
+```
+python app.py
+```
+It will run your app on http://localhost:8888/
