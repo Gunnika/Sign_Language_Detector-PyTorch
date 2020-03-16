@@ -1,6 +1,124 @@
 # USAGE
 # python webstreaming.py --ip 0.0.0.0 --port 8000
 
+# ASL Detector code
+import numpy as np
+import string
+import os
+import cv2
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+class Network(nn.Module):
+    def __init__(self):
+        super(Network, self).__init__()
+        self.conv1 = nn.Conv2d(1,10,3)
+        self.conv2 = nn.Conv2d(10,20,3)
+        self.conv3 = nn.Conv2d(20,30,3)
+        
+        self.pool = nn.MaxPool2d(2)
+        self.dropout = nn.Dropout2d(0.2)
+        
+        self.fc1 = nn.Linear(2430, 270)
+        self.fc2 = nn.Linear(270,29)
+        
+        self.softmax = nn.LogSoftmax(dim=1)
+        
+    def forward(self,x):
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        
+        x = self.conv3(x)
+        x = F.relu(x)
+        x = self.dropout(x)
+        
+        x = x.view(-1, self.num_flat_features(x))
+        x = F.relu(self.fc1(x))
+        x = self.softmax(F.relu(self.fc2(x)))
+        return(x)
+    
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
+    
+use_cuda = torch.cuda.is_available()
+
+# load the model that got the best validation accuracy 
+if use_cuda:
+    infer_model = Network().cuda()
+else:
+    infer_model = Network()
+infer_model.load_state_dict(torch.load('/home/gunnika/Sign Language Detector PyTorch/saved_model.pt'))
+
+dict_labels = {
+    0:'A',
+    1:'B',
+    2:'C',
+    3:'D',
+    4:'E',
+    5:'F',
+    6:'G',
+    7:'H',
+    8:'I',
+    9:'J',
+    10:'K',
+    11:'L',
+    12:'M',
+    13:'N',
+    14:'O',
+    15:'P',
+    16:'Q',
+    17:'R',
+    18:'S',
+    19:'T',
+    20:'U',
+    21:'V',
+    22:'W',
+    23:'X',
+    24:'Y',
+    25:'Z',
+    26:'del',
+    27:'nothing',
+    28:'space'
+    
+}
+
+def predictor(img):
+    # load the image and return the predicted breed
+    img = Image.fromarray(img)
+    transformations = transforms.Compose([transforms.Grayscale(num_output_channels=1),
+                                            transforms.Resize(size=50),
+                                         transforms.ToTensor(),
+                                         transforms.Normalize([0.5],[0.5])])
+    image_tensor = transformations(img)[:3,:,:].unsqueeze(0)
+
+    # move model inputs to cuda, if GPU available
+    if use_cuda:
+        image_tensor = image_tensor.cuda()
+
+    # get sample outputs
+    output = infer_model(image_tensor)
+    # convert output probabilities to predicted class
+    _, preds_tensor = torch.max(output, 1)
+
+    pred = np.squeeze(preds_tensor.numpy()[0]) if not use_cuda else np.squeeze(preds_tensor.cpu().numpy()[0])
+
+    return dict_labels[pred]
+    
+
 # import the necessary packages
 from pyimagesearch.motion_detection import SingleMotionDetector
 from imutils.video import VideoStream
@@ -15,7 +133,6 @@ import time
 import cv2
 from flask import jsonify
 import autocomplete
-import numpy as np
 
 autocomplete.load()
 
