@@ -144,6 +144,18 @@
                 console.log(error);
             });
         }, 1000);
+
+        document.body.onkeyup = function(e){
+            if(e.keyCode == 32){
+                axios.get('/trigger')
+                .then(function (response) {
+                    console.log(response.data)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+        }
     </script>
 
     <div class="container">

@@ -121,7 +121,7 @@ def predictor(img):
 
 # import the necessary packages
 from imutils.video import VideoStream
-from flask import Response
+from flask import Response, request
 from flask import Flask
 from flask import render_template
 import threading
@@ -140,6 +140,7 @@ autocomplete.load()
 # are viewing tthe stream)
 outputFrame = None
 lock = threading.Lock()
+trigger_flag = False
 
 # initialize a flask object
 app = Flask(__name__)
@@ -156,7 +157,7 @@ def index():
             
 def detect_gesture(frameCount):
 
-    global vc, outputFrame, lock
+    global vc, outputFrame, lock, trigger_flag
 
     # vc = cv2.VideoCapture(0)
     # rval, frame = vc.read()
@@ -186,12 +187,12 @@ def detect_gesture(frameCount):
 
             # blackboard = np.zeros(frame.shape, dtype=np.uint8)
             cv2.putText(frame, "Predicted text - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
+            
             if count_frames > 20 and pred_text != "":
                 total_str += pred_text
                 count_frames = 0
 
-            if flag == True:
-                print('inside flag')
+            if trigger_flag == True:
                 old_text = pred_text
                 pred_text = predictor(thresh)
 
@@ -199,13 +200,10 @@ def detect_gesture(frameCount):
                     count_frames += 1
                 else:
                     count_frames = 0
+
                 cv2.putText(frame, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
-
-                flag = False
-
-            keypress = cv2.waitKey(1)
-            if keypress == ord('c'):
-                flag = True
+                
+                trigger_flag = False
             
             # res = np.hstack((frame, blackboard))
             with lock:
@@ -240,6 +238,12 @@ def generate():
 def get_suggestion(prev_word='my', next_semi_word='na'):
     suggestions = autocomplete.predict(prev_word, next_semi_word)[:5]
     return [word[0] for word in suggestions]
+
+@app.route('/trigger') 
+def form_example():
+    global trigger_flag
+    trigger_flag = True
+    return Response('done')
 
 @app.route("/video_feed")
 def video_feed():
