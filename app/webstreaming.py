@@ -164,7 +164,6 @@ def detect_gesture(frameCount):
     # rval, frame = vc.read()
     old_text = ''
     pred_text = ''
-    count_frames = 0
     flag = False
 
     while True:
@@ -187,27 +186,20 @@ def detect_gesture(frameCount):
 
             # blackboard = np.zeros(frame.shape, dtype=np.uint8)
             cv2.putText(frame, "Predicted letter - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
-            
-            if count_frames > 20 and pred_text != "":
-                total_str += pred_text
-                count_frames = 0
 
             if trigger_flag == True:
                 old_text = pred_text
-                thresh_resized = cv2.resize( thresh, (50,50))
+                thresh_resized = cv2.resize(thresh, (50,50))
                 pred_text = predictor(thresh_resized)
 
-                if(pred_text!='nothing'):
+                if(pred_text=='nothing' or pred_text=='space'):
+                    total_str += ' '
+                else:
                     total_str += pred_text
 
-                if old_text == pred_text:
-                    count_frames += 1
-                else:
-                    count_frames = 0
-
-                cv2.putText(frame, pred_text, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
-                
                 trigger_flag = False
+            
+            cv2.putText(frame, pred_text, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
             
             # res = np.hstack((frame, blackboard))
             with lock:
@@ -240,7 +232,21 @@ def generate():
 
 
 def get_suggestion(prev_word='my', next_semi_word='na'):
-    suggestions = autocomplete.predict(prev_word, next_semi_word)[:5]
+    global total_str
+
+    separated = list(total_str)
+
+    first = ''
+    second = ''
+
+    if(len(separated)>=2):
+        first = separated[-2]
+        second = separated[-1]
+
+    if(first and second):
+        suggestions = autocomplete.predict(first, second)[:5]
+    else:
+        suggestions = autocomplete.predict(total_str, '')[:5]
     return [word[0] for word in suggestions]
 
 @app.route('/trigger') 
