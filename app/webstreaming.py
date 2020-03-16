@@ -15,6 +15,7 @@ import time
 import cv2
 from flask import jsonify
 import autocomplete
+import numpy as np
 
 autocomplete.load()
 
@@ -29,8 +30,8 @@ app = Flask(__name__)
 
 # initialize the video stream and allow the camera sensor to
 # warmup
-vs = VideoStream(src=0).start()
-time.sleep(2.0)
+# vs = VideoStream(src=0).start()
+# time.sleep(2.0)
 
 @app.route("/")
 def index():
@@ -86,6 +87,66 @@ def detect_motion(frameCount):
 		# lock
 		with lock:
 			outputFrame = frame.copy()
+            
+def detect_gesture(frameCount):
+    vc = cv2.VideoCapture(0)
+    rval, frame = vc.read()
+    old_text = ''
+    pred_text = ''
+    count_frames = 0
+    total_str = ''
+    flag = False
+
+    while True:
+    
+        if frame is not None: 
+
+            frame = cv2.flip(frame, 1)
+            frame = cv2.resize( frame, (400,400) )
+
+            cv2.rectangle(frame, (300,300), (100,100), (0,255,0), 2)
+
+            crop_img = frame[100:300, 100:300]
+            grey = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+
+            thresh = cv2.threshold(grey,210,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
+
+
+            blackboard = np.zeros(frame.shape, dtype=np.uint8)
+            cv2.putText(blackboard, "Predicted text - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
+#             if count_frames > 20 and pred_text != "":
+#                 total_str += pred_text
+#                 count_frames = 0
+
+#             if flag == True:
+#                 old_text = pred_text
+#                 pred_text = predictor(thresh)
+
+#                 if old_text == pred_text:
+#                     count_frames += 1
+#                 else:
+#                     count_frames = 0
+#                 cv2.putText(blackboard, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
+            res = np.hstack((frame, blackboard))
+
+            cv2.imshow("image", res)
+            cv2.imshow("hand", thresh)
+
+        rval, frame = vc.read()
+        keypress = cv2.waitKey(1)
+        if keypress == ord('c'):
+            flag = True
+        if keypress == ord('q'):
+            break
+
+    vc.release()
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
+
+    vc.release()
+ 
+    
+    
 		
 def generate():
 	# grab global references to the output frame and lock variables
@@ -146,7 +207,7 @@ if __name__ == '__main__':
 	args = vars(ap.parse_args())
 
 	# start a thread that will perform motion detection
-	t = threading.Thread(target=detect_motion, args=(
+	t = threading.Thread(target=detect_gesture, args=(
 		args["frame_count"],))
 	t.daemon = True
 	t.start()
@@ -156,4 +217,4 @@ if __name__ == '__main__':
 		threaded=True, use_reloader=False)
 
 # release the video stream pointer
-vs.stop()
+# vs.stop()
