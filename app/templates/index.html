@@ -156,6 +156,14 @@
                 });
             }
         }
+
+        function tts() {
+            var text = document.getElementById("sugg-sentence").innerHTML;
+            var speech = new SpeechSynthesisUtterance(text);
+            speech.lang = 'en-US';
+            window.speechSynthesis.speak(speech);
+        }
+
     </script>
 
     <div class="container">
@@ -175,6 +183,7 @@
                     <p class="content" id="sugg-sentence">
                         <!-- Dynamically fill the completed sentence -->
                     </p>
+                    <button onclick="tts()">Speak!</button>
                 </div>
             </div>
         </div>

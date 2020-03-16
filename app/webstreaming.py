@@ -115,7 +115,7 @@ def predictor(img):
     _, preds_tensor = torch.max(output, 1)
 
     pred = np.squeeze(preds_tensor.numpy()[0]) if not use_cuda else np.squeeze(preds_tensor.cpu().numpy()[0])
-
+    
     return dict_labels[pred]
     
 
@@ -141,6 +141,7 @@ autocomplete.load()
 outputFrame = None
 lock = threading.Lock()
 trigger_flag = False
+total_str = ''
 
 # initialize a flask object
 app = Flask(__name__)
@@ -157,14 +158,12 @@ def index():
             
 def detect_gesture(frameCount):
 
-    global vc, outputFrame, lock, trigger_flag
+    global vc, outputFrame, lock, trigger_flag, total_str
 
     # vc = cv2.VideoCapture(0)
     # rval, frame = vc.read()
     old_text = ''
     pred_text = ''
-    count_frames = 0
-    total_str = ''
     flag = False
 
     while True:
@@ -178,32 +177,29 @@ def detect_gesture(frameCount):
             
             frame = cv2.resize( frame, (width,height))
 
-            cv2.rectangle(frame, (width//2, 0), (width, height), (0,255,0), 2)
+            cv2.rectangle(frame, (width//2, 0), (width, width//2), (0,255,0), 2)
 
-            crop_img = frame[0:height, width//2:width]
+            crop_img = frame[0:width//2, width//2:width]
             grey = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
 
             thresh = cv2.threshold(grey,210,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
 
             # blackboard = np.zeros(frame.shape, dtype=np.uint8)
-            cv2.putText(frame, "Predicted text - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
-            
-            if count_frames > 20 and pred_text != "":
-                total_str += pred_text
-                count_frames = 0
+            cv2.putText(frame, "Predicted letter - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
 
             if trigger_flag == True:
                 old_text = pred_text
-                pred_text = predictor(thresh)
+                thresh_resized = cv2.resize(thresh, (50,50))
+                pred_text = predictor(thresh_resized)
 
-                if old_text == pred_text:
-                    count_frames += 1
+                if(pred_text=='nothing' or pred_text=='space'):
+                    total_str += ' '
                 else:
-                    count_frames = 0
+                    total_str += pred_text
 
-                cv2.putText(frame, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
-                
                 trigger_flag = False
+            
+            cv2.putText(frame, pred_text, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
             
             # res = np.hstack((frame, blackboard))
             with lock:
@@ -236,7 +232,21 @@ def generate():
 
 
 def get_suggestion(prev_word='my', next_semi_word='na'):
-    suggestions = autocomplete.predict(prev_word, next_semi_word)[:5]
+    global total_str
+
+    separated = list(total_str)
+
+    first = ''
+    second = ''
+
+    if(len(separated)>=2):
+        first = separated[-2]
+        second = separated[-1]
+
+    if(first and second):
+        suggestions = autocomplete.predict(first, second)[:5]
+    else:
+        suggestions = autocomplete.predict(total_str, '')[:5]
     return [word[0] for word in suggestions]
 
 @app.route('/trigger') 
@@ -259,8 +269,8 @@ def suggestion():
 
 @app.route('/sentence')
 def sentence():
-    sentence = 'I want to buy some apples...'
-    return jsonify(sentence)
+    global total_str
+    return jsonify(total_str)
 
 # check to see if this is the main thread of execution
 if __name__ == '__main__':
