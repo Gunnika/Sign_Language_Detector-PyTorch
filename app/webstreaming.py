@@ -70,7 +70,7 @@ def detect_motion(frameCount):
 			# detect motion in the image
 			motion = md.detect(gray)
 
-			# cehck to see if motion was found in the frame
+			# check to see if motion was found in the frame
 			if motion is not None:
 				# unpack the tuple and draw the box surrounding the
 				# "motion area" on the output frame
@@ -114,19 +114,19 @@ def detect_gesture(frameCount):
 
             blackboard = np.zeros(frame.shape, dtype=np.uint8)
             cv2.putText(blackboard, "Predicted text - ", (30, 40), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 0))
-#             if count_frames > 20 and pred_text != "":
-#                 total_str += pred_text
-#                 count_frames = 0
+            if count_frames > 20 and pred_text != "":
+                total_str += pred_text
+                count_frames = 0
 
-#             if flag == True:
-#                 old_text = pred_text
-#                 pred_text = predictor(thresh)
+            if flag == True:
+                old_text = pred_text
+                pred_text = predictor(thresh)
 
-#                 if old_text == pred_text:
-#                     count_frames += 1
-#                 else:
-#                     count_frames = 0
-#                 cv2.putText(blackboard, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
+                if old_text == pred_text:
+                    count_frames += 1
+                else:
+                    count_frames = 0
+                cv2.putText(blackboard, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
             res = np.hstack((frame, blackboard))
 
             cv2.imshow("image", res)
