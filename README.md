@@ -42,3 +42,11 @@ To run the web application:
 python app.py
 ```
 It will run your app on http://localhost:8888/
+
+## Screenshots
+### H
+![H](https://user-images.githubusercontent.com/34855465/76798612-eda6c700-67f5-11ea-974e-514a82c8c5c5.png)
+
+### A
+![A](https://user-images.githubusercontent.com/34855465/76798664-044d1e00-67f6-11ea-9b41-0a4ca9f625e1.png)
+
