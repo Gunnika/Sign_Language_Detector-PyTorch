@@ -115,7 +115,7 @@ def predictor(img):
     _, preds_tensor = torch.max(output, 1)
 
     pred = np.squeeze(preds_tensor.numpy()[0]) if not use_cuda else np.squeeze(preds_tensor.cpu().numpy()[0])
-
+    
     return dict_labels[pred]
     
 
@@ -178,9 +178,9 @@ def detect_gesture(frameCount):
             
             frame = cv2.resize( frame, (width,height))
 
-            cv2.rectangle(frame, (width//2, 0), (width, height), (0,255,0), 2)
+            cv2.rectangle(frame, (width//2, 0), (width, width//2), (0,255,0), 2)
 
-            crop_img = frame[0:height, width//2:width]
+            crop_img = frame[0:width//2, width//2:width]
             grey = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
 
             thresh = cv2.threshold(grey,210,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
@@ -194,7 +194,8 @@ def detect_gesture(frameCount):
 
             if trigger_flag == True:
                 old_text = pred_text
-                pred_text = predictor(thresh)
+                thresh_resized = cv2.resize( thresh, (50,50))
+                pred_text = predictor(thresh_resized)
 
                 if old_text == pred_text:
                     count_frames += 1
