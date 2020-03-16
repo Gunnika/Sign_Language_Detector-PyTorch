@@ -191,16 +191,17 @@ def detect_gesture(frameCount):
                 count_frames = 0
 
             if flag == True:
+                print('inside flag')
                 old_text = pred_text
                 pred_text = predictor(thresh)
-
-                print('inside')
 
                 if old_text == pred_text:
                     count_frames += 1
                 else:
                     count_frames = 0
                 cv2.putText(frame, total_str, (30, 80), cv2.FONT_HERSHEY_TRIPLEX, 1, (255, 255, 127))
+
+                flag = False
 
             keypress = cv2.waitKey(1)
             if keypress == ord('c'):
