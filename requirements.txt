@@ -1,5 +1,5 @@
 opencv_python==4.2.0.32
-numpy==1.17.2
+numpy==1.22.0
 Flask==1.1.1
 autocomplete==0.0.104
 torch==1.4.0
